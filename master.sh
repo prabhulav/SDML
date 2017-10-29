@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Starting"
+echo "Starting.."
 python filesplit.py
 echo "second"
 python extractColumns.py
