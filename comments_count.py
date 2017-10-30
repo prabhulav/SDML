@@ -2,10 +2,12 @@
 
 import re
 import string
-what= input('Enter T if it is test:')
+from nltk import PorterStemmer
+
+what=input('Enter T if it is test:')
 
 if what.upper() =='T':
-	document_text=open('../SDMLdata/dummy.csv','r')
+	document_text=open('../SDMLdata/dummy_3.csv','r')
 else:
 	document_text=open('../SDMLdata/incident_trim.csv','r',encoding='latin-1')
 
@@ -25,17 +27,22 @@ wc=dict()
 while row!='':
 	row1 = row.rstrip('\n').split(',')
 	#print (row1[header_data['CallID']])
-	calldes_split= row1[header_data['CallDesc']].split()
+	calldes_split= row1[header_data['CallDesc']].lower().replace(';',' ')\
+		.replace('.',' ').replace(':',' ').replace('"',' ').replace('#',' ').\
+		replace('{',' ').replace('}',' ').replace('!',' ').replace('~',' ').\
+		replace('|',' ').replace("'",' ').replace("*",' ').split()
 	for z in calldes_split:
-		if wc.get(z) is not None:
-			wc[z]+=1
+		#Stem
+		stemmed_word=PorterStemmer().stem(z)
+		if wc.get(stemmed_word) is not None:
+			wc[stemmed_word]+=1
 		else:
-			wc[z]=1
+			wc[stemmed_word]=1
 	row=document_text.readline()
 
 for rcd in wc:
-	out.write(rcd+','+str(wc[rcd])+'\n')
-
+	if len(rcd)>1 and wc[rcd]>1 and len(rcd)<=20:
+		out.write(rcd+','+str(wc[rcd])+'\n')
 
 out.close()
 document_text.close()
